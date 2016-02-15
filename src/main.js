@@ -45,7 +45,8 @@ shell.on('gl-init', () => {
   subject.stop.push((a) => a.loop(0));
   subject.stopToGo.push((a) => a.play(1, 0, [10], {}, true));
   subject.go.push((a) => a.loop(1, 10, 56, { from: 23, to: 43 }, true));
-  subject.goToStop.push((a) => a.play(1, 0, [23, 56], [10, 56], false));
+
+  subject.goToStop.push((a) => a.play(1, 0, [23, 56], {from: 10, to: 56}, false));
   subject.goToStop.push((a) => a.play(1, 0, [33, 65], {}, false));
 
   camera = new Camera([0, 2.5, 7], [0, 0, 0]);
