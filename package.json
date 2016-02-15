@@ -17,12 +17,9 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "gl-buffer": "^2.1.2",
     "gl-matrix": "^2.3.1",
     "gl-now": "^1.4.0",
-    "gl-shader": "^4.2.0",
     "gl-texture2d": "^2.0.10",
-    "gl-vao": "^1.2.1",
     "key-pressed": "0.0.1",
     "mouse-position": "^2.0.1",
     "mouse-pressed": "^1.0.0",
