@@ -12,22 +12,18 @@ export class Bone {
   }
 }
 
-export class Model {
-  constructor(gl, scene, scale = 1) {
+export default class Model {
+  constructor(gl, scene) {
     this.gl = gl;
     this.meshes = [];
     this.bones = [];
     this.scene = scene;
-    this.scale = scale;
 
     this.globalTranformation = mat4.invert([], this.scene.rootNode.transform);
     this.processNode(scene.rootNode);
   }
 
   draw(shader) {
-    let model = mat4.create();
-    mat4.scale(model, model, [this.scale, this.scale, this.scale]);//[0.005, 0.005, 0.005]);
-    shader.bind("model", { type: 'mat4', val: model });
     this.meshes.forEach(m => m.draw(shader));
   }
 
@@ -48,7 +44,12 @@ export class Model {
     mesh.faces.forEach(f => indices.push(...f.indices));
 
     let material = this.scene.materials[mesh.materialIndex];
-    textures.push(new Texture(createTexture(this.gl, document.getElementById(material.diffuse)), "diffuse"));
+
+    let textureId = createTexture(this.gl, document.getElementById(material.diffuse));
+    textureId.generateMipmap();
+    textureId.wrap = [this.gl.REPEAT, this.gl.REPEAT];
+
+    textures.push(new Texture(textureId, "diffuse"));
 
     this.loadBones(mesh.bones).forEach(b => {
       b.weights.forEach(w => {

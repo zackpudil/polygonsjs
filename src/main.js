@@ -1,13 +1,15 @@
 import { radians } from './util';
-import { Model } from './model';
+import Model from './model';
 import AnimationController from './animation-controller';
 import Animator from './animator';
+import Actor from './actor';
 import Camera from './camera';
 import { mat4 } from 'gl-matrix';
 import Shader from './shader';
 
 var shell = require('gl-now')();
-var subjectShader, subject, animator, animationController, camera;
+var subject, camera;
+var stageShader, stage;
 
 var glslify = require('glslify');
 
@@ -19,16 +21,32 @@ shell.on('gl-init', () => {
   gl.enable(gl.DEPTH_TEST);
 
   let characterVertSrc = glslify('../shaders/character.glsl');
+  let stageVertSrc = glslify('../shaders/stage.glsl');
   let fragSrc = glslify('../shaders/material.glsl');
 
-  subjectShader = new Shader(gl)
+  stageShader = new Shader(gl)
+    .attach(stageVertSrc, 'vert')
+    .attach(fragSrc, 'frag')
+    .link();
+
+  stage = new Model(gl, require('../models/small_stage.json'));
+
+  let subjectShader = new Shader(gl)
     .attach(characterVertSrc, 'vert')
     .attach(fragSrc, 'frag')
     .link();
 
-  subject = new Model(gl, require('../models/container_guy.json'), 0.005);
-  animationController = new AnimationController(subject);
-  animator = new Animator(animationController);
+  let subjectModel = new Model(gl, require('../models/container_guy.json'));
+  let animationController = new AnimationController(subjectModel);
+  let animator = new Animator(animationController);
+
+  subject = new Actor(subjectShader, animator, subjectModel, [0, 0, 0], 1.0, 2.0, 0.005);
+
+  subject.stop.push((a) => a.loop(0));
+  subject.stopToGo.push((a) => a.play(1, 0, [10], {}, true));
+  subject.go.push((a) => a.loop(1, 10, 56, { from: 23, to: 43 }, true));
+  subject.goToStop.push((a) => a.play(1, 0, [23, 56], [10, 56], false));
+  subject.goToStop.push((a) => a.play(1, 0, [33, 65], {}, false));
 
   camera = new Camera([0, 2.5, 7], [0, 0, 0]);
 
@@ -36,8 +54,10 @@ shell.on('gl-init', () => {
 });
 
 shell.on('gl-render', function (t) {
-  camera.handleInput(t);
   var gl = shell.gl;
+
+  camera.handleInput(t);
+  subject.handleInput();
 
   let projection = mat4.perspective(mat4.create(), radians(45.0), shell.width/shell.height, 0.1, 1000.0);
   let view = camera.getViewMatrix();
@@ -45,17 +65,14 @@ shell.on('gl-render', function (t) {
   gl.clearColor(0.25, 0.25, 0.25, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  subjectShader.use()
+  subject.draw(projection, view, t/30);
+
+  stageShader.use()
     .bind("projection", { type: 'mat4', val: projection })
-    .bind("view", { type: 'mat4', val: view });
+    .bind("view", { type: 'mat4', val: view })
+    .bind("model", { type: 'mat4', val: mat4.rotateX(mat4.create(), mat4.create(), radians(-90.0)) });
 
-  animator
-    .play(0)
-    .play(1, 0, [10])
-    .loop(1, 10, 56, { from: 23, to: 43 }, true)
-    .run(subjectShader, t/30);
-
-  subject.draw(subjectShader);
+  stage.draw(stageShader);
 });
 
 shell.on('gl-error', (e) => {

@@ -6,7 +6,7 @@ import mouseWheel from 'mouse-wheel';
 import pressed from 'key-pressed';
 
 export default class Camera {
-  constructor(p, d, s = 1, sens = 0.1) {
+  constructor(p, d, s = 0.5, sens = 0.1) {
     this.position = p;
     this.direction = d;
     this.speed = s;
@@ -58,7 +58,6 @@ export default class Camera {
   }
 
   _handleMouse() {
-
     let y = radians(this._yaw);
     let p = radians(this._pitch);
 

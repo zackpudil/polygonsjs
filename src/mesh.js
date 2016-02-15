@@ -45,9 +45,12 @@ export class Mesh {
     let gl = this.gl;
     shader.bind('diffuse', { type: 'sampler2D', val: this.textures[0].texture.bind() });
 
-    this.bindAttributes(shader);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ebo);
-    gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_SHORT, 0);
+
+    this.bindAttributes(shader);
+    gl.drawElements(gl.TRIANGLES, this.indices.length, gl.UNSIGNED_INT, 0);
   }
 
   createBuffers() {
@@ -61,15 +64,16 @@ export class Mesh {
 
     this.ebo = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ebo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(this.indices), gl.STATIC_DRAW);
   }
 
   bindAttributes(shader) {
     let gl = this.gl;
 
+    // TODO: hoist these variables and positions to class objects to reduce garbage collection,
+    // and improve performance.
     let bytes = Float32Array.BYTES_PER_ELEMENT;
     var stride = bytes*17;
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
 
     //vec3 poision
     let pal = gl.getAttribLocation(shader.program, "position");
@@ -88,17 +92,23 @@ export class Mesh {
 
     // vec4 boneIds
     let bal = gl.getAttribLocation(shader.program, "boneIds");
-    gl.enableVertexAttribArray(bal);
-    gl.vertexAttribPointer(bal, 4, gl.FLOAT, false, stride, bytes*8);
+    if(bal !== -1) {
+      gl.enableVertexAttribArray(bal);
+      gl.vertexAttribPointer(bal, 4, gl.FLOAT, false, stride, bytes*8);
+    }
 
     // vec4 weights
     let wal = gl.getAttribLocation(shader.program, "weights");
-    gl.enableVertexAttribArray(wal);
-    gl.vertexAttribPointer(wal, 4, gl.FLOAT, false, stride, bytes*12);
+    if(wal !== -1) { 
+      gl.enableVertexAttribArray(wal);
+      gl.vertexAttribPointer(wal, 4, gl.FLOAT, false, stride, bytes*12);
+    }
 
     // float boneIdAmount
     let ial = gl.getAttribLocation(shader.program, "boneIdAmount");
-    gl.enableVertexAttribArray(ial);
-    gl.vertexAttribPointer(ial, 1, gl.FLOAT, false, stride, bytes*16);
+    if(ial !== -1) {
+      gl.enableVertexAttribArray(ial);
+      gl.vertexAttribPointer(ial, 1, gl.FLOAT, false, stride, bytes*16);
+    }
   }
 }
