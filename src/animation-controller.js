@@ -8,10 +8,8 @@ export default class AnimationController {
     let transforms = [];
 
     let anim = this.model.scene.animations[idx];
-    let time = tick/30;
-    let frame = (time*anim.ticksPerSecond) % anim.duration;
 
-    this.readNodeHeirarchy(frame, this.model.scene.rootNode, idx, ident);
+    this.readNodeHeirarchy(tick, this.model.scene.rootNode, idx, ident);
 
     this.model.bones.forEach(b => transforms.push(b.finalTrans));
 
@@ -66,7 +64,7 @@ export default class AnimationController {
     var startKey, endKey;
 
     keys.some((k, i) => {
-      if(time < k.time) {
+      if(time <= k.time) {
         startKey = keys[i - 1];
         endKey = k;
         return true;

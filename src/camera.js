@@ -1,4 +1,5 @@
 import {mat4, vec3} from 'gl-matrix';
+import {radians} from './util';
 import mousePosition from 'mouse-position';
 import mousePressed from 'mouse-pressed';
 import mouseWheel from 'mouse-wheel';
@@ -58,8 +59,8 @@ export default class Camera {
 
   _handleMouse() {
 
-    let y = Math.radians(this._yaw);
-    let p = Math.radians(this._pitch);
+    let y = radians(this._yaw);
+    let p = radians(this._pitch);
 
     this.direction = [
       Math.cos(y)*Math.cos(p),
