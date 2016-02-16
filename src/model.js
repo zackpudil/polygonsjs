@@ -45,11 +45,17 @@ export default class Model {
 
     let material = this.scene.materials[mesh.materialIndex];
 
-    let textureId = createTexture(this.gl, document.getElementById(material.diffuse));
-    textureId.generateMipmap();
-    textureId.wrap = [this.gl.REPEAT, this.gl.REPEAT];
+    let getTexture = (t, type) => {
+      if(t.length == 0) return;
+      let textureId = createTexture(this.gl, document.getElementById(t));
+      textureId.generateMipmap();
+      textureId.wrap = [this.gl.REPEAT, this.gl.REPEAT];
+      textures.push(new Texture(textureId, type));
+    };
 
-    textures.push(new Texture(textureId, "diffuse"));
+    getTexture(material.diffuse, "diffuse");
+    getTexture(material.normals, "normal");
+    getTexture(material.specular, "specular");
 
     this.loadBones(mesh.bones).forEach(b => {
       b.weights.forEach(w => {

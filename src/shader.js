@@ -15,6 +15,7 @@ export default class Shader {
     let shader = this.gl.createShader(type == "vert" ? this.gl.VERTEX_SHADER : this.gl.FRAGMENT_SHADER);
     this.gl.shaderSource(shader, src);
     this.gl.compileShader(shader);
+    console.log(this.gl.getShaderInfoLog(shader));
 
     this.gl.attachShader(this.program, shader);
 
@@ -23,6 +24,7 @@ export default class Shader {
 
   link() {
     this.gl.linkProgram(this.program);
+    console.log(this.gl.getProgramInfoLog(this.program));
     return this;
   }
 
@@ -30,7 +32,11 @@ export default class Shader {
     let loc = this.gl.getUniformLocation(this.program, name);
     if(value.type === "mat4")
       this.gl.uniformMatrix4fv(loc, false, value.val);
-    else if(value.type === "sampler2D")
+    else if(value.type === "vec3")
+      this.gl.uniform3fv(loc, value.val);
+    else if(value.type === "float")
+      this.gl.uniform1f(loc, value.val);
+    else if(value.type === "sampler2D" || value.type === "int")
       this.gl.uniform1i(loc, value.val);
 
     return this;

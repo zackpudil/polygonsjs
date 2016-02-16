@@ -3,13 +3,13 @@ import Model from './model';
 import AnimationController from './animation-controller';
 import Animator from './animator';
 import Actor from './actor';
+import Stage from './stage';
 import Camera from './camera';
 import { mat4 } from 'gl-matrix';
 import Shader from './shader';
 
 var shell = require('gl-now')();
-var subject, camera;
-var stageShader, stage;
+var subject, stage, camera;
 
 var glslify = require('glslify');
 
@@ -24,12 +24,14 @@ shell.on('gl-init', () => {
   let stageVertSrc = glslify('../shaders/stage.glsl');
   let fragSrc = glslify('../shaders/material.glsl');
 
-  stageShader = new Shader(gl)
+  let stageShader = new Shader(gl)
     .attach(stageVertSrc, 'vert')
     .attach(fragSrc, 'frag')
     .link();
 
-  stage = new Model(gl, require('../models/small_stage.json'));
+  let stageModel = new Model(gl, require('../models/small_stage.json'));
+
+  stage = new Stage(stageModel, stageShader);
 
   let subjectShader = new Shader(gl)
     .attach(characterVertSrc, 'vert')
@@ -40,7 +42,7 @@ shell.on('gl-init', () => {
   let animationController = new AnimationController(subjectModel);
   let animator = new Animator(animationController);
 
-  subject = new Actor(subjectShader, animator, subjectModel, [0, 0, 0], 1.0, 2.0, 0.005);
+  subject = new Actor(subjectShader, animator, subjectModel, [0, 0, 0], 1.0, 2.0, 0.02);
 
   subject.stop.push((a) => a.loop(0));
   subject.stopToGo.push((a) => a.play(1, 0, [10], {}, true));
@@ -66,14 +68,8 @@ shell.on('gl-render', function (t) {
   gl.clearColor(0.25, 0.25, 0.25, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  subject.draw(projection, view, t/30);
-
-  stageShader.use()
-    .bind("projection", { type: 'mat4', val: projection })
-    .bind("view", { type: 'mat4', val: view })
-    .bind("model", { type: 'mat4', val: mat4.rotateX(mat4.create(), mat4.create(), radians(-90.0)) });
-
-  stage.draw(stageShader);
+  subject.draw(projection, view, stage.lights, t/30);
+  stage.draw(projection, view);
 });
 
 shell.on('gl-error', (e) => {

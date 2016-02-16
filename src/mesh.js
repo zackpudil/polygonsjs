@@ -16,6 +16,7 @@ export class Vertex {
       ...this.position,
       ...this.normal,
       ...this.tex,
+      ...this.tangent,
       ...Array.apply(0, Array(4)).map((v, i) => this.boneIds.length <= i ? 0 : this.boneIds[i]),
       ...Array.apply(0, Array(4)).map((v, i) => this.weights.length <= i ? 0 : this.weights[i]),
       this.boneIds.length
@@ -23,10 +24,17 @@ export class Vertex {
   }
 }
 
+var unit = -1;
 export class Texture {
+  static get unit() {
+    unit += 1;
+    return unit;
+  }
+
   constructor(texture, name)  {
     this.texture = texture;
     this.name = name;
+    this.unit = Texture.unit;
   }
 }
 
@@ -43,8 +51,12 @@ export class Mesh {
 
   draw(shader) {
     let gl = this.gl;
-    shader.bind('diffuse', { type: 'sampler2D', val: this.textures[0].texture.bind() });
 
+    this.textures.forEach(t => {
+      shader.bind('material.' + t.name, { type: 'sampler2D', val: t.texture.bind(t.unit)});
+    });
+    shader.bind('material.hasNormals', this.textures.filter(t => t.name === "normal").length);
+    shader.bind('material.hasSpecular', this.textures.filter(t => t.name === "specular").length);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ebo);
@@ -73,7 +85,7 @@ export class Mesh {
     // TODO: hoist these variables and positions to class objects to reduce garbage collection,
     // and improve performance.
     let bytes = Float32Array.BYTES_PER_ELEMENT;
-    var stride = bytes*17;
+    var stride = bytes*20;
 
     //vec3 poision
     let pal = gl.getAttribLocation(shader.program, "position");
@@ -90,25 +102,29 @@ export class Mesh {
     gl.enableVertexAttribArray(tal);
     gl.vertexAttribPointer(tal, 2, gl.FLOAT, false, stride, bytes*6);
 
+    let gal = gl.getAttribLocation(shader.program, "tangent");
+    gl.enableVertexAttribArray(gal);
+    gl.vertexAttribPointer(gal, 2, gl.FLOAT, false, stride, bytes*8)
+
     // vec4 boneIds
     let bal = gl.getAttribLocation(shader.program, "boneIds");
     if(bal !== -1) {
       gl.enableVertexAttribArray(bal);
-      gl.vertexAttribPointer(bal, 4, gl.FLOAT, false, stride, bytes*8);
+      gl.vertexAttribPointer(bal, 4, gl.FLOAT, false, stride, bytes*11);
     }
 
     // vec4 weights
     let wal = gl.getAttribLocation(shader.program, "weights");
     if(wal !== -1) { 
       gl.enableVertexAttribArray(wal);
-      gl.vertexAttribPointer(wal, 4, gl.FLOAT, false, stride, bytes*12);
+      gl.vertexAttribPointer(wal, 4, gl.FLOAT, false, stride, bytes*15);
     }
 
     // float boneIdAmount
     let ial = gl.getAttribLocation(shader.program, "boneIdAmount");
     if(ial !== -1) {
       gl.enableVertexAttribArray(ial);
-      gl.vertexAttribPointer(ial, 1, gl.FLOAT, false, stride, bytes*16);
+      gl.vertexAttribPointer(ial, 1, gl.FLOAT, false, stride, bytes*19);
     }
   }
 }

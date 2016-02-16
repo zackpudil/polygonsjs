@@ -1,5 +1,10 @@
 import { isArryEquivalent, isEquivalent } from './util';
 
+let PlayType = {
+	play: "play",
+	loop: "loop"
+};
+
 export default class Animator {
 	constructor(ctrl) {
 		this.durations = [];
@@ -28,7 +33,7 @@ export default class Animator {
 			ends[0] = this.durations[idx].duration;
 
 		this.callStack.push({
-			playType: 0,
+			playType: PlayType.play,
 			idx: idx,
 			startFrame: start,
 			endFrames: ends,
@@ -42,7 +47,7 @@ export default class Animator {
 
 	loop(idx, start = 0, end = -1, skip = {}, reset = true) {
 		this.callStack.push({
-			playType: 1,
+			playType: PlayType.loop,
 			idx: idx,
 			startFrame: start,
 			endFrames: end == -1 ? [this.durations[idx].duration] : [end],
@@ -74,7 +79,7 @@ export default class Animator {
 
 			if(this.currentStackIdx == this.callStack.length) {
 				this.currentStackIdx -= 1;
-				this.currentStackAnimationDone = this.callStack[this.currentStackIdx].playType == 0;
+				this.currentStackAnimationDone = this.callStack[this.currentStackIdx].playType == PlayType.play;
 			}
 
 			entryToPlay = this.callStack[this.currentStackIdx];
@@ -85,7 +90,7 @@ export default class Animator {
 
 		let frame = this.getFrame(entryToPlay.idx, t);
 
-		if(entryToPlay.playType == 0)
+		if(entryToPlay.playType == PlayType.play)
 			this.runPlayEntry(entryToPlay, frame, shader, true);
 		else
 			this.runLoopEntry(entryToPlay, frame, shader, true);

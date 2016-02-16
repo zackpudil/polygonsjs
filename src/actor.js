@@ -33,12 +33,13 @@ export default class Actor {
 
 	}
 
-	draw(projection, view, t) {
+	draw(projection, view, lighting, t) {
 		this.shader.use()
 			.bind("projection", { type: 'mat4', val: projection })
 			.bind("view", { type: 'mat4', val: view })
 			.bind("model", { type: 'mat4', val: this.getModelMatrix() });
 
+		lighting.light(this.shader);
 		this.animator.run(this.shader, t);
 
 		this.model.draw(this.shader);
