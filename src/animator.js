@@ -100,6 +100,19 @@ export default class Animator {
 		this.callStack = [];
 	}
 
+	get(shader) {
+		let entryToPlay = this.callStack.length == 0 || this.currentStackIdx == this.callStack.lenght
+			? this.previousCallStack[this.currentStackIdx]
+			: this.callStack[this.currentStackIdx];
+
+		let frame = (this.durations[entryToPlay.idx].ticksPerSecond*this.runningTime) % this.durations[entryToPlay.idx].duration;
+
+		if(entryToPlay.playType == PlayType.play)
+			this.runPlayEntry(entryToPlay, frame, shader, false);
+		else
+			this.runLoopEntry(entryToPlay, frame, shader, false);
+	}
+
 	runPlayEntry(entry, frame, shader, runCbs) {
 		if(this.currentStackAnimationDone) {
 			this.bindUniforms(this.ctrl.boneTransforms(this.lastFrame, entry.idx), shader);

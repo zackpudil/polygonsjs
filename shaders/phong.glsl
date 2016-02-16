@@ -11,9 +11,9 @@ vec3 calculateSpecular(vec3 specular, vec3 lightDirection, vec3 fragPos, vec3 no
     return specular * spec;
 }
 
-float calculateLuminosity(vec3 pos, vec3 fragPos, float l, float q) {
+float calculateLuminosity(vec3 pos, vec3 fragPos, float r) {
     float d  = length(pos - fragPos);
-    float attenuation = q*d*d;
+    float attenuation = r*d*d;
     return 1.0/(attenuation);
 }
 
@@ -42,15 +42,14 @@ struct PointLight {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
-    
-    float linear;
-    float quadratic;
+
+    float radius;
 };
 
 vec3 calculatePointLight(PointLight point, vec3 fragPos, vec3 norm) {
     vec3 lightDir = normalize(point.position - fragPos);
     
-    float a = calculateLuminosity(point.position, fragPos, point.linear, point.quadratic);
+    float a = calculateLuminosity(point.position, fragPos, point.radius);
     
     vec3 ambient = point.ambient*rGetMaterialDiffuse();
     vec3 diffuse = calculateDiffuse(point.diffuse, lightDir, norm)*a*rGetMaterialDiffuse();
@@ -66,9 +65,8 @@ struct SpotLight {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
-    
-    float linear;
-    float quadratic;
+
+    float radius;
     
     float cutOff;
     float outerCutOff;
@@ -81,7 +79,7 @@ vec3 calculateSpotLight(SpotLight spot, vec3 fragPos, vec3 norm) {
     float epsilon = (spot.cutOff - spot.outerCutOff);
     float intensity = clamp((theta - spot.outerCutOff)/epsilon, 0.0, 1.0);
     
-    float a = calculateLuminosity(spot.position, fragPos, spot.linear, spot.quadratic);
+    float a = calculateLuminosity(spot.position, fragPos, spot.radius);
 
     vec3 ambient = spot.ambient*rGetMaterialDiffuse();
     vec3 diffuse = calculateDiffuse(spot.diffuse, lightDir, norm)*a*rGetMaterialDiffuse();

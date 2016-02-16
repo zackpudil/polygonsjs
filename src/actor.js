@@ -33,14 +33,18 @@ export default class Actor {
 
 	}
 
-	draw(projection, view, lighting, t) {
+	draw(projection, view, viewPos, lighting, t) {
 		this.shader.use()
 			.bind("projection", { type: 'mat4', val: projection })
 			.bind("view", { type: 'mat4', val: view })
-			.bind("model", { type: 'mat4', val: this.getModelMatrix() });
+			.bind("model", { type: 'mat4', val: this.getModelMatrix() })
+			.bind("viewPos", { type: 'vec3', val: viewPos });
 
 		lighting.light(this.shader);
-		this.animator.run(this.shader, t);
+		if(t >= 0)
+			this.animator.run(this.shader, t);
+		else
+			this.animator.get(this.shader);
 
 		this.model.draw(this.shader);
 	}

@@ -1,9 +1,9 @@
 import {mat4, vec3} from 'gl-matrix';
 import {radians} from './util';
-import mousePosition from 'mouse-position';
-import mousePressed from 'mouse-pressed';
 import mouseWheel from 'mouse-wheel';
-import pressed from 'key-pressed';
+import vkey from 'vkey';
+import touches from 'touches';
+import {mobilecheck} from './util';
 
 export default class Camera {
   constructor(p, d, s = 0.5, sens = 0.1) {
@@ -12,19 +12,35 @@ export default class Camera {
     this.speed = s;
     this.sensitivity = sens
 
-    this._mouse = {
-      pos: mousePosition(),
-      pre: mousePressed()
-    };
-    this._yaw = -90.0;
+    this._yaw = 0.0;
     this._pitch = 0.0;
 
-    this.wheel = { offsetX: 0, offsetY:0 };
+    this.moveForward = false;
 
-    mouseWheel((dx, dy) => {
-      this._yaw -= dx*this.sensitivity;
-      this._pitch += dy*this.sensitivity;
-    }, true);
+    if(window.DeviceMotionEvent && mobilecheck()) {
+      window.addEventListener('devicemotion', event => {
+        this._yaw += event.rotationRate.alpha;
+        this._pitch -= event.rotationRate.beta;
+      });
+
+      touches()
+        .on('start', () => this.moveForward = true)
+        .on('end', () => this.moveForward = false);
+
+    } else {
+      mouseWheel((dx, dy) => {
+        this._yaw -= dx*this.sensitivity;
+        this._pitch += dy*this.sensitivity;
+      }, true);
+
+      document.body.addEventListener('keydown', ev => {
+        if(vkey[ev.keyCode] == "W") this.moveForward = true;
+      });
+
+      document.body.addEventListener('keyup', ev => {
+        if(vkey[ev.keyCode] == "W") this.moveForward = false;
+      });
+    }
   }
 
   getViewMatrix() {
@@ -37,7 +53,6 @@ export default class Camera {
   handleInput(t) {
     this._handleKeyboard(t);
     this._handleMouse();
-    this._mouse.pos.flush();
   }
 
   _handleKeyboard(t) {
@@ -49,14 +64,13 @@ export default class Camera {
     let r = vec3.scale(vec3.create(), right, frameSpeed);
     let u = vec3.scale(vec3.create(), up, frameSpeed);
 
-    if(pressed('W')) vec3.add(this.position, this.position, d);
-    if(pressed('S')) vec3.subtract(this.position, this.position, d);
-    if(pressed('A')) vec3.subtract(this.position, this.position, r);
-    if(pressed('D')) vec3.add(this.position, this.position, r);
-    if(pressed('<space>')) vec3.add(this.position, this.position, u);
-    if(pressed('<shift>')) vec3.subtract(this.position, this.position, u);
+    if(this.moveForward) vec3.add(this.position, this.position, d);
+    // if(pressed('S')) vec3.subtract(this.position, this.position, d);
+    // if(pressed('A')) vec3.subtract(this.position, this.position, r);
+    // if(pressed('D')) vec3.add(this.position, this.position, r);
+    // if(pressed('<space>')) vec3.add(this.position, this.position, u);
+    // if(pressed('<shift>')) vec3.subtract(this.position, this.position, u);
   }
-
   _handleMouse() {
     let y = radians(this._yaw);
     let p = radians(this._pitch);

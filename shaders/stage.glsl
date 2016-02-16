@@ -22,7 +22,7 @@ void main() {
   vec3 N = normalize(vec3(model*vec4(normal, 0.0)));
   vec3 B = normalize(cross(T, N));
   
-  FragPos = vec3(model * gl_Position);
+  FragPos = vec3(model * vec4(position, 1));
   TBN = mat3(T, B, N);
   Tex = tex;
   Normal = mat3(transpose(inverse(model)))*normal;

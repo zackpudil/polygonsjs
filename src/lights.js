@@ -24,8 +24,7 @@ export default class Lights {
 			let start = `points[${i}].`;
 			shader
 				.bind(start + "position", { type: 'vec3', val: p.position })
-				.bind(start + "quadratic", { type: 'float', val: p.attenuation })
-				.bind(start + "linear", { type: 'float', val: 0 });
+				.bind(start + "radius", { type: 'float', val: p.radius });
 
 			this.bindCommonUniforms(shader, p, start);
 		});
@@ -36,8 +35,7 @@ export default class Lights {
 			shader
 				.bind(start + "position", { type: 'vec3', val: s.position })
 				.bind(start + "direction", { type: 'vec3', val: s.direction })
-				.bind(start + "quadratic", { type: 'float', val: s.attenuation })
-				.bind(start + "linear", { type: 'float', val: s.linear })
+				.bind(start + "radius", { type: 'float', val: s.radius })
 				.bind(start + "cutOff", { type: 'float', val: s.innerCutOff })
 				.bind(start + "outerCufOff", { type: 'float', val: s.outerCufOff });
 
@@ -68,7 +66,7 @@ export default class Lights {
 		this.points.push({
 			type: LightType.point, 
 			position: pos, 
-			attenuation: q, 
+			radius: q, 
 			ambient: a, 
 			diffuse: d, 
 			specular: s
@@ -82,7 +80,7 @@ export default class Lights {
 			type: LightType.spot, 
 			position: pos, 
 			direction: dir, 
-			attenuation: q, 
+			radius: q, 
 			innerCutOff: i,
 			outerCufOff: o, 
 			ambient: a, 

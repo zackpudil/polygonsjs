@@ -1,11 +1,24 @@
 <html>
 <head>
+	<style>
+		.cardboard_icon {
+			background: url('/textures/cardboard_white.png') no-repeat center center;
+			width: 100px;
+			height: 50px;
+			background-size: container;
+			position: absolute;
+			z-index: 1000;
+			left: 2px;
+			top: 0;
+		}
+	</style>
 </head>
 
 <body>
+	<div id="cardboard" class="cardboard_icon"></div>
   <canvas></canvas>
-  <img id="container_guy.fbm/20-brushed-seamless-texture.jpg" src="textures/20-brushed-seamless-texture.jpg" style="display: none" />
 
+  <img id="container_guy.fbm/20-brushed-seamless-texture.jpg" src="textures/20-brushed-seamless-texture.jpg" style="display: none" />
   <img id="brickwall.jpg" src="textures/brickwall.jpg" style="display: none" />
   <img id="brickwall_normal.jpg" src="textures/brickwall_normal.jpg" style="display: none" />
 
