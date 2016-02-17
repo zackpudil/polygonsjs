@@ -54,7 +54,7 @@ shell.on('gl-init', () => {
   let animationController = new AnimationController(subjectModel);
   let animator = new Animator(animationController);
 
-  subject = new Actor(subjectShader, animator, subjectModel, [0, 0, 0], 1.0, 2.0, 0.02);
+  subject = new Actor(subjectShader, animator, subjectModel, [0, 0, 0], 0.5, 2.0, 0.02);
 
   subject.stop.push((a) => a.loop(0));
   subject.stopToGo.push((a) => a.play(1, 0, [10], {}, true));
@@ -63,7 +63,7 @@ shell.on('gl-init', () => {
   subject.goToStop.push((a) => a.play(1, 0, [23, 56], {from: 10, to: 56}, false));
   subject.goToStop.push((a) => a.play(1, 0, [33, 65], {}, false));
 
-  camera = new Camera([0, 2.5, 7], [0, 0, 0]);
+  camera = new Camera([0, 6.5, 70], [0, 0, 0]);
 
   console.log('init finished');
 });
@@ -71,10 +71,12 @@ shell.on('gl-init', () => {
 shell.on('gl-render', function (t) {
   var gl = shell.gl;
 
-  camera.handleInput(t);
   subject.handleInput();
+  camera.handleInput();
 
-  let projection = mat4.perspective(mat4.create(), radians(90.0), shell.width/shell.height, 0.1, 1000.0);
+  vec3.add(camera.position, subject.position, [-subject.direction[0]*40, 19, -subject.direction[2]*40]);
+
+  let projection = mat4.perspective(mat4.create(), radians(45.0), shell.width/shell.height, 0.1, 1000.0);
   gl.clearColor(0.25, 0.25, 0.25, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 

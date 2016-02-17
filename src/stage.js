@@ -25,7 +25,6 @@ export default class Stage {
 	}
 
 	processLight(l) {
-		console.log(l);
 		this.lights.addPointLight(l.position, l.attenuationQuadratic, l.ambient, l.diffuse, l.specular);
 	}
 

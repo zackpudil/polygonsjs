@@ -15,7 +15,9 @@ export default class Shader {
     let shader = this.gl.createShader(type == "vert" ? this.gl.VERTEX_SHADER : this.gl.FRAGMENT_SHADER);
     this.gl.shaderSource(shader, src);
     this.gl.compileShader(shader);
-    console.log(this.gl.getShaderInfoLog(shader));
+    
+    let info = this.gl.getShaderInfoLog(shader);
+    if(info) throw new Error(info);
 
     this.gl.attachShader(this.program, shader);
 
@@ -24,7 +26,8 @@ export default class Shader {
 
   link() {
     this.gl.linkProgram(this.program);
-    console.log(this.gl.getProgramInfoLog(this.program));
+    let info = this.gl.getProgramInfoLog(this.program);
+    if(info) throw new Error(info);
     return this;
   }
 
