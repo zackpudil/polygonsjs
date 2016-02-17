@@ -16,9 +16,12 @@ var subject, stage, camera;
 var glslify = require('glslify');
 var isStereoScopic = false;
 
-touch(window, { target: document.getElementById("cardboard") })
+touch(document.getElementById("cardboard"))
   .on('end', (ev) => {
-    if(mobilecheck()) isStereoScopic = !isStereoScopic; 
+    if(mobilecheck()) {
+      document.body.webkitRequestFullScreen();
+      isStereoScopic = !isStereoScopic; 
+   }
  });
 
 document.getElementById("cardboard").style.display = mobilecheck() ? "block" : "none";
