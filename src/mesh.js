@@ -87,44 +87,20 @@ export class Mesh {
     let bytes = Float32Array.BYTES_PER_ELEMENT;
     var stride = bytes*20;
 
-    //vec3 poision
-    let pal = gl.getAttribLocation(shader.program, "position");
-    gl.enableVertexAttribArray(pal);
-    gl.vertexAttribPointer(pal, 3, gl.FLOAT, false, stride, 0);
+    var bindPointer = (attribute, amount, offset) => {
+      let attributeLocation = gl.getAttribLocation(shader.program, attribute);
+      if(attributeLocation != -1) {
+        gl.enableVertexAttribArray(attributeLocation);
+        gl.vertexAttribPointer(attributeLocation, amount, gl.FLOAT, false, stride, bytes*offset);
+      }
+    };
 
-    //vec3 normal
-    let nal = gl.getAttribLocation(shader.program, "normal");
-    gl.enableVertexAttribArray(nal);
-    gl.vertexAttribPointer(nal, 3, gl.FLOAT, false, stride, bytes*3);
-
-    // vec2 tex
-    let tal = gl.getAttribLocation(shader.program, "tex");
-    gl.enableVertexAttribArray(tal);
-    gl.vertexAttribPointer(tal, 2, gl.FLOAT, false, stride, bytes*6);
-
-    let gal = gl.getAttribLocation(shader.program, "tangent");
-    gl.enableVertexAttribArray(gal);
-    gl.vertexAttribPointer(gal, 2, gl.FLOAT, false, stride, bytes*8)
-
-    // vec4 boneIds
-    let bal = gl.getAttribLocation(shader.program, "boneIds");
-    if(bal !== -1) {
-      gl.enableVertexAttribArray(bal);
-      gl.vertexAttribPointer(bal, 4, gl.FLOAT, false, stride, bytes*11);
-    }
-
-    // vec4 weights
-    let wal = gl.getAttribLocation(shader.program, "weights");
-    if(wal !== -1) { 
-      gl.enableVertexAttribArray(wal);
-      gl.vertexAttribPointer(wal, 4, gl.FLOAT, false, stride, bytes*15);
-    }
-
-    // float boneIdAmount
-    let ial = gl.getAttribLocation(shader.program, "boneIdAmount");
-    if(ial !== -1) {
-      gl.enableVertexAttribArray(ial);
-      gl.vertexAttribPointer(ial, 1, gl.FLOAT, false, stride, bytes*19);
-    }
+    bindPointer("position", 3, 0);
+    bindPointer("normal", 3, 3); 
+    bindPointer("tex", 2, 6);
+    bindPointer("tangent", 3, 8);
+    bindPointer("boneIds", 4, 11);
+    bindPointer("weights", 4, 15);
+    bindPointer("boneIdAmount", 1, 19);
   }
 }

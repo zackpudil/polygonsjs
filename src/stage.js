@@ -3,9 +3,10 @@ import { vec3, mat4 } from 'gl-matrix';
 import { radians } from './util';
 
 export default class Stage {
-	constructor(model, shader, scale = 1.0) {
+	constructor(model, shader, shadowShader, scale = 1.0) {
 		this.model = model;
 		this.shader = shader;
+		this.shadowShader = shadowShader;
 		this.scale = scale;
 
 		this.lights = new Lights();
@@ -22,6 +23,14 @@ export default class Stage {
 		this.lights.light(this.shader);
 
 		this.model.draw(this.shader);
+	}
+
+	drawShadow(lightSpace) {
+		this.shadowShader.use()
+			.bind('lightSpace', { type: 'mat4', val: lightSpace })
+			.bind('model', { type: 'mat4', val: this.getModelMatrix() });
+
+		this.model.draw(this.shadowShader);
 	}
 
 	processLight(l) {

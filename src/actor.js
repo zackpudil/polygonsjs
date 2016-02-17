@@ -6,8 +6,9 @@ import vkey from 'vkey';
 import mouseWheel from 'mouse-wheel';
 
 export default class Actor {
-	constructor(shader, animator, model, position, maxSpeed = 1.0, maxAngularSpeed = 2.0, scale = 1) {
+	constructor(shader, shadowShader, animator, model, position, maxSpeed = 1.0, maxAngularSpeed = 2.0, scale = 1) {
 		this.shader = shader;
+		this.shadowShader = shadowShader;
 		this.animator = animator;
 		this.model = model;
 		this.maxSpeed = maxSpeed;
@@ -33,7 +34,7 @@ export default class Actor {
       window.addEventListener('devicemotion', event => {
         this.angle -= event.rotationRate.alpha;
       });
-      
+
 			touch()
 				.on('start', () => this.isMoving = true)
 				.on('end', () => this.isMoving = false);
@@ -84,6 +85,15 @@ export default class Actor {
 			this.animator.get(this.shader);
 
 		this.model.draw(this.shader);
+	}
+
+	drawShadow(lightSpace) {
+		this.shadowShader.use()
+			.bind('lightSpace', { type: 'mat4', val: lightSpace })
+			.bind('model', { type: 'mat4', val: this.getModelMatrix() });
+
+		this.animator.get(this.shadowShader);
+		this.model.draw(this.shadowShader);
 	}
 
 	emulateStop() {

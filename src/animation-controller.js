@@ -64,7 +64,7 @@ export default class AnimationController {
     var startKey, endKey;
 
     keys.some((k, i) => {
-      if(time <= k.time) {
+      if(time < k.time) {
         startKey = keys[i - 1];
         endKey = k;
         return true;
