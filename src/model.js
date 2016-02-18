@@ -54,7 +54,7 @@ export default class Model {
     };
 
     getTexture(material.diffuse, "diffuse");
-    //getTexture(material.normals, "normal");
+    getTexture(material.normals, "normal");
     getTexture(material.specular, "specular");
 
     this.loadBones(mesh.bones).forEach(b => {

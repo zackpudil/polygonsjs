@@ -13,11 +13,13 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 uniform mat4 bones[17];
+uniform mat4 lightSpace;
 
 varying vec2 Tex;
 varying vec3 Normal;
 varying vec3 FragPos;
 varying mat3 TBN;
+varying vec4 FragLightPos;
 
 void main() {
     mat4 boneTransform;
@@ -40,4 +42,5 @@ void main() {
     FragPos = vec3(model * p);
     Tex = tex;
     Normal = mat3(transpose(inverse(model*boneTransform)))*normal;
+    FragLightPos = lightSpace*vec4(FragPos, 1.0);
 }

@@ -13,12 +13,15 @@ export default class Stage {
 		this.model.scene.lights.forEach(l => this.processLight(l));
 	}
 
-	draw(projection, view, viewPos) {
+	draw(projection, view, lightSpace, viewPos, shadowUnit) {
 		this.shader.use()
 			.bind("projection", { type: 'mat4', val: projection })
 			.bind("view", { type: 'mat4', val: view })
 			.bind("model", { type: 'mat4', val: this.getModelMatrix() })
-			.bind("viewPos", { type: 'vec3', val: viewPos });
+			.bind("lightSpace", { type: 'mat4', val: lightSpace })
+			.bind("viewPos", { type: 'vec3', val: viewPos })
+			.bind("shadow", { type: 'sampler2D', val: shadowUnit })
+			.bind("castShadow", { type: 'int', val: 1 });
 
 		this.lights.light(this.shader);
 

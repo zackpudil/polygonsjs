@@ -55,7 +55,7 @@ shell.on('gl-init', () => {
     .link();
 
   let stageModel = new Model(gl, require('../models/small_stage.json'));
-  stage = new Stage(stageModel, stageShadowShader, stageShader);
+  stage = new Stage(stageModel, stageShader, stageShadowShader);
 
   let subjectShader = new Shader(gl)
     .attach(characterVertSrc, 'vert')
@@ -95,13 +95,16 @@ shell.on('gl-render', function (t) {
   let projection = mat4.perspective(mat4.create(), radians(45.0), shell.width/shell.height, 0.1, 1000.0);
   let view = camera.getViewMatrix();
 
-  let lightProjection = mat4.ortho(mat4.create(), 0.0, 1000.0, 0.0, 1000.0, 1.0, 1000.0);
-  let lightView = mat4.lookAt(mat4.create(), stage.lights.points[0].position, [0, 0, 0], [1, 1, 1]);
+  let lightPos = stage.lights.points[0].position;
+  let lightDir = vec3.add([], lightPos, [0, -1, 0]);
+
+  let lightProjection = mat4.perspective(mat4.create(), radians(90.0), 1.0, 0.1, 3500.0);
+  let lightView = mat4.lookAt(mat4.create(), lightPos, lightDir, [-1, 0, 0]);
   let lightSpace = mat4.mul(mat4.create(), lightProjection, lightView);
 
-  gl.clear(gl.DEPTH_BUFFER_BIT);
   gl.viewport(0, 0, 1024, 1024);
   gl.bindFramebuffer(gl.FRAMEBUFFER, shadow.buffer);
+  gl.clear(gl.DEPTH_BUFFER_BIT);
 
   stage.drawShadow(lightSpace);
   subject.drawShadow(lightSpace);
@@ -111,17 +114,19 @@ shell.on('gl-render', function (t) {
   gl.clearColor(0.25, 0.25, 0.25, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 
+  let shadowUnit = shadow.map.texture.bind(shadow.map.unit);
+
   if(isStereoScopic) {
     gl.scissor(0, 0, shell.width/2, shell.height);
     gl.viewport(0, 0, shell.width/2, shell.height);
-    render(gl, projection, view, t, [0, 0, 0]);
+    render(gl, projection, view, lightSpace, shadowUnit, t);
 
     gl.scissor(shell.width/2, 0, shell.width/2, shell.height);
     gl.viewport(shell.width/2, 0, shell.width/2, shell.height);
-    render(gl, projection, view, -1, [0, 0, 0]);
+    render(gl, projection, view, lightSpace, shadowUnit, -1);
   } else {
     gl.viewport(0, 0, shell.width, shell.height);
-    render(gl, projection, view, t, [0, 0, 0]);
+    render(gl, projection, view, lightSpace, shadowUnit, t);
   }
 });
 
@@ -129,8 +134,7 @@ shell.on('gl-error', (e) => {
   worked = false;
   throw e;
 });
-
-var render = function (gl, projection, view, t) {
-  subject.draw(projection, view, camera.position, stage.lights, t/30);
-  stage.draw(projection, view, camera.position);
+var render = function (gl, projection, view, lightSpace, shadowUnit, t) {
+  subject.draw(projection, view, lightSpace, camera.position, shadowUnit, stage.lights, t/30);
+  stage.draw(projection, view, lightSpace, camera.position, shadowUnit);
 }

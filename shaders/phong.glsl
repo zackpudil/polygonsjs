@@ -1,3 +1,4 @@
+#pragma glslify: calculateShadow = require('./shadow/calculateShadow.glsl', rShadow = rShadow);
 vec3 calculateDiffuse(vec3 diffuse, vec3 lightDirection, vec3 norm) {
     float diff = max(dot(norm, lightDirection), 0.0);
     return diffuse * diff;
@@ -54,8 +55,10 @@ vec3 calculatePointLight(PointLight point, vec3 fragPos, vec3 norm) {
     vec3 ambient = point.ambient*rGetMaterialDiffuse();
     vec3 diffuse = calculateDiffuse(point.diffuse, lightDir, norm)*a*rGetMaterialDiffuse();
     vec3 specular = calculateSpecular(point.specular, lightDir, fragPos, norm)*a*rGetMaterialSpecular();
+
+    float shadow = calculateShadow(rLightPos, lightDir, norm);
     
-    return ambient + diffuse + specular;
+    return ambient + (1.0 - shadow)*(diffuse + specular);
 }
 
 struct SpotLight {

@@ -17,9 +17,11 @@ varying vec3 Normal;
 varying vec3 FragPos;
 varying vec2 Tex;
 varying mat3 TBN;
+varying vec4 FragLightPos;
 
 uniform vec3 viewPos;
 uniform Material material;
+uniform sampler2D shadow;
 
 vec3 getDiffuse() {
     return vec3(texture2D(material.diffuse, Tex));
@@ -32,7 +34,7 @@ vec3 getSpecular() {
     return vec3(0);
 }
 
-#pragma glslify: calculateLighting = require('./phong.glsl', rShininess = material.shininess, rGetMaterialDiffuse = getDiffuse, rGetMaterialSpecular = getSpecular, rViewPos = viewPos);
+#pragma glslify: calculateLighting = require('./phong.glsl', rShininess = material.shininess, rGetMaterialDiffuse = getDiffuse, rGetMaterialSpecular = getSpecular, rViewPos = viewPos, rLightPos = FragLightPos, rShadow = shadow);
 
 void main() {
     vec3 norm;
@@ -46,6 +48,6 @@ void main() {
     }
 
     vec3 result = calculateLighting(FragPos, norm);
-    
+
     gl_FragColor = vec4(result, 1.0);
 }

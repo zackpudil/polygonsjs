@@ -9,11 +9,13 @@ attribute vec3 tangent;
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
+uniform mat4 lightSpace;
 
 varying vec2 Tex;
 varying vec3 Normal;
 varying mat3 TBN;
 varying vec3 FragPos;
+varying vec4 FragLightPos;
 
 void main() {
   gl_Position = projection*view*model*vec4(position, 1);
@@ -26,4 +28,5 @@ void main() {
   TBN = mat3(T, B, N);
   Tex = tex;
   Normal = mat3(transpose(inverse(model)))*normal;
+  FragLightPos = lightSpace*vec4(FragPos, 1);
 }

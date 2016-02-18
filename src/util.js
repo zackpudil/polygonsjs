@@ -1,3 +1,5 @@
+import createTexture from 'gl-texture2d';
+import {Texture} from './mesh';
 export function radians(degrees) {
   return degrees * Math.PI / 180;
 };
@@ -8,19 +10,14 @@ export function createShadowMap(gl, width, height) {
   depthTextureExtension = gl.getExtension("WEBKIT_WEBGL_depth_texture");
   if(!depthTextureExtension) throw new Error("Depth textures are not supported by your browser.");
 
-  var depthMap = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, depthMap);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
+  var depthMap = new Texture(createTexture(gl, [width, height], gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT), 'depth');
+  var colorTexture = new Texture(createTexture(gl, [width, height], gl.RGBA), 'blank');
 
   var depthBuffer = gl.createFramebuffer();
   gl.bindFramebuffer(gl.FRAMEBUFFER, depthBuffer);
-  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthMap, 0);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, colorTexture.texture.handle, 0);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthMap.texture.handle, 0);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  gl.bindTexture(gl.TEXTURE_2D, null);
 
   return { buffer: depthBuffer, map: depthMap };
 }

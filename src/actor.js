@@ -68,15 +68,17 @@ export default class Actor {
 		} else {
 			this.emulateStop();
 		}
-
 	}
 
-	draw(projection, view, viewPos, lighting, t) {
+	draw(projection, view, lightSpace, viewPos, shadowUnit, lighting, t) {
 		this.shader.use()
 			.bind("projection", { type: 'mat4', val: projection })
 			.bind("view", { type: 'mat4', val: view })
 			.bind("model", { type: 'mat4', val: this.getModelMatrix() })
-			.bind("viewPos", { type: 'vec3', val: viewPos });
+			.bind("lightSpace", { type: 'mat4', val: lightSpace })
+			.bind("viewPos", { type: 'vec3', val: viewPos })
+			.bind("shadow", { type: 'sampler2D', val: shadowUnit })
+			.bind("castShadow", { type: 'int', val: 0 });
 
 		lighting.light(this.shader);
 		if(t >= 0)
