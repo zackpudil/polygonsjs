@@ -32,6 +32,7 @@ shell.on('gl-init', () => {
   var gl = shell.gl;
 
   gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
 
   shadow = createShadowMap(gl, 1024, 1024);
 
@@ -98,7 +99,7 @@ shell.on('gl-render', function (t) {
   let lightPos = stage.lights.points[0].position;
   let lightDir = vec3.add([], lightPos, [0, -1, 0]);
 
-  let lightProjection = mat4.perspective(mat4.create(), radians(90.0), 1.0, 0.1, 3500.0);
+  let lightProjection = mat4.perspective(mat4.create(), radians(90.0), 1.0, 0.1, 300.0);
   let lightView = mat4.lookAt(mat4.create(), lightPos, lightDir, [-1, 0, 0]);
   let lightSpace = mat4.mul(mat4.create(), lightProjection, lightView);
 
@@ -106,8 +107,10 @@ shell.on('gl-render', function (t) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, shadow.buffer);
   gl.clear(gl.DEPTH_BUFFER_BIT);
 
+  gl.cullFace(gl.FRONT);
   stage.drawShadow(lightSpace);
   subject.drawShadow(lightSpace);
+  gl.cullFace(gl.BACK);
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 

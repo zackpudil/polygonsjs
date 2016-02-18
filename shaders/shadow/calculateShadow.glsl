@@ -10,12 +10,19 @@ float calculateShadow(vec4 fragPosLightSpace, vec3 lightDir, vec3 normal) {
 	if(projCoords.z > 1.0)
 		return 0.0;
 
-	float closestDepth = texture2D(rShadow, projCoords.xy).r;
 	float currentDepth = projCoords.z;
 
-	float bias = 0.00001;
+	float shadowCoef = 0.0;
+	float bias = 0.000001;
 
-	float shadowCoef = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+	for(float x = -0.001; x < 0.001; x += 0.0005) {
+		for(float y = -0.001; y < 0.001; y += 0.0005) {
+			float closestDepth = texture2D(rShadow, projCoords.xy + vec2(x, y)).r;
+			if(currentDepth - bias > closestDepth) shadowCoef += 1.0;
+		}
+	}
+
+	shadowCoef /= 16.0;
 
 	return shadowCoef;
 }
