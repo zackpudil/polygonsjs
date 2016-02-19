@@ -18,7 +18,8 @@ var subjects = [], stage, camera;
 var shadow;
 
 var glslify = require('glslify');
-var isStereoscopic = false, isFowardKeyDown = false, hasMoved = false;
+var isStereoscopic = false;
+var isFowardKeyDown = false, hasMoved = false, updateActive = false, activeSubject = 0;
 
 touch(document.getElementById("cardboard"))
   .on('end', (ev) => {
@@ -92,7 +93,7 @@ shell.on('gl-init', () => {
     window.addEventListener('devicemotion', event => {
       camera.yaw += event.rotationRate.alpha;
       camera.pitch += event.rotationRate.beta;
-      subjects[0].actor.angle -= event.rotationRate.alpha;
+      subjects[activeSubject].actor.angle -= event.rotationRate.alpha;
     });
 
     touch()
@@ -102,7 +103,7 @@ shell.on('gl-init', () => {
     mouseWheel((dx, dy) => {
       camera.yaw -= dx;
       camera.pitch += dy;
-      subjects[0].actor.angle += dx;
+      subjects[activeSubject].actor.angle += dx;
     }, true);
 
     document.body.addEventListener("keydown", (e) => {
@@ -114,6 +115,7 @@ shell.on('gl-init', () => {
 
     document.body.addEventListener("keyup", (e) => {
       if(vkey[e.keyCode] == "W") isFowardKeyDown = false;
+      if(vkey[e.keyCode] == "<enter>") updateActive = true;
     });
   }
 
@@ -124,23 +126,34 @@ shell.on('gl-render', function (t) {
   var gl = shell.gl;
   t = t/30;
 
-  camera.update();
   subjects.forEach(s => s.update());
-  vec3.add(camera.position, 
-        subjects[0].actor.position, 
-        [-15*subjects[0].actor.direction[0], 18, -15*subjects[0].actor.direction[2]]);
+
+  if(updateActive) {
+    updateActive = false;
+    hasMoved = false;
+    activeSubject += 1;
+    if(activeSubject == subjects.length) activeSubject = 0;
+    camera.yaw = -subjects[activeSubject].actor.angle;
+  }
+
+  camera.update();
+
+  let activeActor = subjects[activeSubject].actor;
+
+  let cameraPosition = vec3.add([], activeActor.position, [-15*activeActor.direction[0], 18, -15*activeActor.direction[2]]);
+  let subjectRight = vec3.cross([], activeActor.direction, [0, -1, 0]);
+  vec3.add(camera.position, cameraPosition, vec3.scale([], subjectRight, 5));
 
   if(isFowardKeyDown) {
-    subjects[0].startWalking();
-    subjects[0].walk();
+    subjects[activeSubject].startWalking();
+    subjects[activeSubject].walk();
   } else {
-    if(hasMoved) subjects[0].stopWalking();
-    subjects[0].idle();
+    if(hasMoved) subjects[activeSubject].stopWalking();
+    subjects[activeSubject].idle();
   }
+
   subjects.forEach((s, i) => {
-    if(i !== 0) {
-      s.idle();
-    }
+    if(i !== activeSubject) s.idle();
   });
 
   let projection = mat4.perspective(mat4.create(), radians(45.0), shell.width/shell.height, 0.1, 1000.0);

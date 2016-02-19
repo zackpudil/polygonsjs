@@ -56,7 +56,7 @@
 			"startFrame": 0,
 			"endFrames": [-1],
 			"skip": {},
-			"reset": false
+			"reset": true 
 		}],
 		"stunt": {
 			"do": "stop"

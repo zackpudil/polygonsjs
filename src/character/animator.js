@@ -101,7 +101,7 @@ export default class Animator {
 	}
 
 	get(shader) {
-		let entryToPlay = this.callStack.length == 0 || this.currentStackIdx == this.callStack.length
+		let entryToPlay = this.callStack.length == 0 || this.currentStackIdx >= this.callStack.length
 			? this.previousCallStack[this.currentStackIdx]
 			: this.callStack[this.currentStackIdx];
 
