@@ -26,13 +26,12 @@ export default class Actor {
 
 		this.hasMoved = false;
 		this.isMoving = false;
-
-
+		this.active = false;
 
 		if(window.DeviceMotionEvent && mobilecheck()) {
 
       window.addEventListener('devicemotion', event => {
-        this.angle -= event.rotationRate.alpha;
+      	if(this.active) this.angle -= event.rotationRate.alpha;
       });
 
 			touch()
@@ -49,7 +48,7 @@ export default class Actor {
       });
 
       mouseWheel((dx, dy) => {
-        this.angle += dx;
+        if(this.active) this.angle += dx;
       }, true);
     }
 	}

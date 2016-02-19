@@ -11,7 +11,7 @@ import touch from 'touches';
 import {mobilecheck, createShadowMap} from './util';
 
 var shell = require('gl-now')();
-var subject, stage, camera;
+var subjects = [], stage, camera;
 var shadow;
 
 var glslify = require('glslify');
@@ -70,17 +70,22 @@ shell.on('gl-init', () => {
 
   let subjectModel = new Model(gl, require('../models/container_guy.json'));
   let animationController = new AnimationController(subjectModel);
-  let animator = new Animator(animationController);
-  subject = new Actor(subjectShader, subjectShadowShader, animator, subjectModel, [0, 0, 0], 0.5, 2.0, 0.02);
 
-  subject.stop.push((a) => a.loop(0));
-  subject.stopToGo.push((a) => a.play(1, 0, [10], {}, true));
-  subject.go.push((a) => a.loop(1, 10, 56, { from: 23, to: 43 }, true));
+  for(var i = 0; i < 3; i++) {
+    let animator = new Animator(animationController);
+    let subject = new Actor(subjectShader, subjectShadowShader, animator, subjectModel, [0, 0, i*20], 0.5, 2.0, 0.02);
 
-  subject.goToStop.push((a) => a.play(1, 0, [23, 56], {from: 10, to: 56}, false));
-  subject.goToStop.push((a) => a.play(1, 0, [33, 65], {}, false));
+    subject.stop.push((a) => a.loop(0));
+    subject.stopToGo.push((a) => a.play(1, 0, [10], {}, true));
+    subject.go.push((a) => a.loop(1, 10, 56, { from: 23, to: 43 }, true));
+
+    subject.goToStop.push((a) => a.play(1, 0, [23, 56], {from: 10, to: 56}, false));
+    subject.goToStop.push((a) => a.play(1, 0, [33, 65], {}, false));
+    subjects.push(subject);
+  }
 
   camera = new Camera([0, 6.5, 70], [0, 0, 0]);
+  subjects[0].active = true;
 
   console.log('init finished');
 });
@@ -88,10 +93,10 @@ shell.on('gl-init', () => {
 shell.on('gl-render', function (t) {
   var gl = shell.gl;
 
-  subject.handleInput();
+  subjects.forEach((s, i) => i != 0 ? s.emulateStop() : s.handleInput());
   camera.handleInput();
 
-  vec3.add(camera.position, subject.position, [-subject.direction[0]*40, 19, -subject.direction[2]*40]);
+  vec3.add(camera.position, subjects[0].position, [subjects[0].direction[0]*2.5, 16, subjects[0].direction[2]*2.5]);
 
   let projection = mat4.perspective(mat4.create(), radians(45.0), shell.width/shell.height, 0.1, 1000.0);
   let view = camera.getViewMatrix();
@@ -109,7 +114,7 @@ shell.on('gl-render', function (t) {
 
   gl.cullFace(gl.FRONT);
   stage.drawShadow(lightSpace);
-  subject.drawShadow(lightSpace);
+  subjects.forEach(s => s.drawShadow(lightSpace));
   gl.cullFace(gl.BACK);
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -138,6 +143,6 @@ shell.on('gl-error', (e) => {
   throw e;
 });
 var render = function (gl, projection, view, lightSpace, shadowUnit, t) {
-  subject.draw(projection, view, lightSpace, camera.position, shadowUnit, stage.lights, t/30);
+  subjects.forEach(s => s.draw(projection, view, lightSpace, camera.position, shadowUnit, stage.lights, t/30));
   stage.draw(projection, view, lightSpace, camera.position, shadowUnit);
 }
