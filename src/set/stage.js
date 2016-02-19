@@ -1,6 +1,6 @@
 import Lights from './lights';
 import { vec3, mat4 } from 'gl-matrix';
-import { radians } from './util';
+import { radians } from '../util';
 
 export default class Stage {
 	constructor(model, shader, shadowShader, scale = 1.0) {

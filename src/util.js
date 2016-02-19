@@ -1,5 +1,5 @@
 import createTexture from 'gl-texture2d';
-import {Texture} from './mesh';
+import {Texture} from './render/mesh';
 export function radians(degrees) {
   return degrees * Math.PI / 180;
 };

@@ -1,4 +1,4 @@
-import { isArryEquivalent, isEquivalent } from './util';
+import { isArryEquivalent, isEquivalent } from '../util';
 
 let PlayType = {
 	play: "play",

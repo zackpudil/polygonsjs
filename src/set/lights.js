@@ -1,4 +1,3 @@
-
 let LightType = {
 	direction: "direction",
 	point: "point",

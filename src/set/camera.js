@@ -1,9 +1,8 @@
 import {mat4, vec3} from 'gl-matrix';
-import {radians} from './util';
+import {radians, mobilecheck} from '../util';
 import mouseWheel from 'mouse-wheel';
 import vkey from 'vkey';
 import touches from 'touches';
-import {mobilecheck} from './util';
 
 export default class Camera {
   constructor(p, d, s = 0.5, sens = 0.5) {

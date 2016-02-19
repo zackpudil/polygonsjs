@@ -1,7 +1,6 @@
 import {mat4, vec3} from 'gl-matrix';
-import {radians} from './util';
+import {radians, mobilecheck} from '../util';
 import touch from 'touches';
-import {mobilecheck} from './util';
 import vkey from 'vkey';
 import mouseWheel from 'mouse-wheel';
 

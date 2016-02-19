@@ -1,12 +1,12 @@
 import { radians } from './util';
-import Model from './model';
-import AnimationController from './animation-controller';
-import Animator from './animator';
-import Actor from './actor';
-import Stage from './stage';
-import Camera from './camera';
+import Model from './render/model';
+import AnimationController from './character/animation-controller';
+import Animator from './character/animator';
+import Actor from './character/actor';
+import Stage from './set/stage';
+import Camera from './set/camera';
 import { mat4, vec3 } from 'gl-matrix';
-import Shader from './shader';
+import Shader from './render/shader';
 import touch from 'touches';
 import {mobilecheck, createShadowMap} from './util';
 
