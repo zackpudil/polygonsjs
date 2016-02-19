@@ -1,4 +1,3 @@
-import { radians } from './util';
 import Model from './render/model';
 import AnimationController from './character/animation-controller';
 import Animator from './character/animator';
@@ -8,7 +7,7 @@ import Camera from './set/camera';
 import { mat4, vec3 } from 'gl-matrix';
 import Shader from './render/shader';
 import touch from 'touches';
-import {mobilecheck, createShadowMap} from './util';
+import {mobilecheck, createShadowMap, radians} from './util';
 
 var shell = require('gl-now')();
 var subjects = [], stage, camera;
