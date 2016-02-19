@@ -22,7 +22,7 @@ float calculateShadow(vec4 fragPosLightSpace, vec3 lightDir, vec3 normal) {
 		}
 	}
 
-	shadowCoef /= 16.0;
+	shadowCoef /= 32.0;
 
 	return shadowCoef;
 }
