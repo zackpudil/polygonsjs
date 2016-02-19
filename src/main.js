@@ -96,7 +96,7 @@ shell.on('gl-render', function (t) {
   subjects.forEach((s, i) => i != 0 ? s.emulateStop() : s.handleInput());
   camera.handleInput();
 
-  vec3.add(camera.position, subjects[0].position, [subjects[0].direction[0]*2.5, 16, subjects[0].direction[2]*2.5]);
+  vec3.add(camera.position, subjects[0].position, [-15*subjects[0].direction[0], 18, -15*subjects[0].direction[2]]);
 
   let projection = mat4.perspective(mat4.create(), radians(45.0), shell.width/shell.height, 0.1, 1000.0);
   let view = camera.getViewMatrix();
