@@ -29,10 +29,33 @@ export default class Character {
 		this.actor.update();
 	}
 
+  isLookingAt(ellipsoid) {
+    let v = vec3.subtract([], this.actor.position, ellipsoid.center);
+    let scaledDirection = vec3.transformMat3([], this.actor.direction, ellipsoid.scale);
+    let scaledPosition = vec3.transformMat3([], v, ellipsoid.scale);
+
+    let q = vec3.dot(this.actor.direction, scaledDirection);
+    let r = vec3.dot(v, scaledDirection);
+    let u = vec3.dot(this.actor.direction, scaledPosition);
+    let w = vec3.dot(v, scaledPosition);
+
+    let s = (r+u)*(r+u) - 4*q*(w - 1);
+
+    if(s < 0) return false;
+
+    return true;
+  }
+
+	getEllipsoid() {
+		return {
+			center: vec3.add([], this.actor.position, [0, 5, 0]),
+			scale: [1.0/7.0, 0, 0, 0, 1.0/80.0, 0, 0, 0, 1.0/7.0]
+		};
+	}
+
 	createStunt(stunt) {
 		stunt.do.split(",").forEach(d => {
 			if(d == "move") {
-				//debugger;
 				vec3.add(this.actor.position, this.actor.position, vec3.scale([], this.actor.direction, this.actor.speed));
 			}
 

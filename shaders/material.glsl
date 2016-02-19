@@ -22,6 +22,7 @@ varying vec4 FragLightPos;
 uniform vec3 viewPos;
 uniform Material material;
 uniform sampler2D shadow;
+uniform vec3 highLightColor;
 
 vec3 getDiffuse() {
     return vec3(texture2D(material.diffuse, Tex));
@@ -48,6 +49,7 @@ void main() {
     }
 
     vec3 result = calculateLighting(FragPos, norm);
+    result += highLightColor;
 
     gl_FragColor = vec4(result, 1.0);
 }

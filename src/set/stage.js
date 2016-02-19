@@ -21,6 +21,7 @@ export default class Stage {
 			.bind("lightSpace", { type: 'mat4', val: lightSpace })
 			.bind("viewPos", { type: 'vec3', val: viewPos })
 			.bind("shadow", { type: 'sampler2D', val: shadowUnit })
+			.bind("highLightColor", { type: 'vec3', val: [0, 0, 0] })
 			.bind("castShadow", { type: 'int', val: 1 });
 
 		this.lights.light(this.shader);

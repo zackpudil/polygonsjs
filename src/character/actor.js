@@ -11,6 +11,7 @@ export default class Actor {
 		this.animator = animator;
 		this.model = model;
 		this.scale = scale;
+		this.highLightColor = [0, 0, 0];
 
 		this.position = position;
 		this.speed = 0;
@@ -31,6 +32,7 @@ export default class Actor {
 			.bind("lightSpace", { type: 'mat4', val: lightSpace })
 			.bind("viewPos", { type: 'vec3', val: viewPos })
 			.bind("shadow", { type: 'sampler2D', val: shadowUnit })
+			.bind("highLightColor", { type: 'vec3', val: this.highLightColor})
 			.bind("castShadow", { type: 'int', val: 0 });
 
 		lighting.light(this.shader);
