@@ -11,22 +11,8 @@ export default class Camera {
     this.speed = s;
     this.sensitivity = sens
 
-    this._yaw = 0.0;
-    this._pitch = 0.0;
-
-    this.moveForward = false;
-
-    if(window.DeviceMotionEvent && mobilecheck()) {
-      window.addEventListener('devicemotion', event => {
-        this._yaw += event.rotationRate.alpha;
-        this._pitch += event.rotationRate.beta;
-      });
-    } else {
-      mouseWheel((dx, dy) => {
-        this._yaw -= dx;
-        this._pitch += dy;
-      }, true);
-    }
+    this.yaw = 0.0;
+    this.pitch = 0.0;
   }
 
   getViewMatrix() {
@@ -36,13 +22,9 @@ export default class Camera {
       [0, 1, 0]);
   }
 
-  handleInput() {
-    this._handleMouse();
-  }
-
-  _handleMouse() {
-    let y = radians(this._yaw);
-    let p = radians(this._pitch);
+  update() {
+    let y = radians(this.yaw);
+    let p = radians(this.pitch);
 
     this.direction = [
       Math.cos(y)*Math.cos(p),

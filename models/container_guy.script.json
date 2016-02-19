@@ -1,0 +1,65 @@
+{
+	"startWalking": {
+		"gestures": [{
+			"type": "play",
+			"animation": 1,
+			"startFrame": 0,
+			"endFrames": [10],
+			"skip": {},
+			"reset": true,
+		}],
+		"stunt": {
+			"do": "move,accel",
+			"accel": 0.05,
+			"maxSpeed": 0.5
+		}
+	},
+	"walk": {
+		"gestures": [{
+			"type": "loop",
+			"animation": 1,
+			"startFrame": 10,
+			"endFrames": [56],
+			"skip": { "from": 23, "to": 43 },
+			"reset": true,
+		}],
+		"stunt": {
+			"do": "move,go",
+			"maxSpeed": 0.5
+		}
+	},
+	"stopWalking": {
+		"gestures": [{
+			"type": "play",
+			"animation": 1,
+			"startFrame": 0,
+			"endFrames": [23, 56],
+			"skip": { "from": 10, "to": 56 },
+			"reset": false
+		}, {
+			"type": "play",
+			"animation": 1,
+			"startFrame": 0,
+			"endFrames": [33, 65],
+			"skip": {},
+			"reset": false
+		}],
+		"stunt": {
+			"do": "move,deaccel",
+			"deaccel": 0.005
+		}
+	},
+	"idle": {
+		"gestures": [{
+			"type": "loop",
+			"animation": 0,
+			"startFrame": 0,
+			"endFrames": [-1],
+			"skip": {},
+			"reset": false
+		}],
+		"stunt": {
+			"do": "stop"
+		}
+	}
+}

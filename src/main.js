@@ -2,25 +2,29 @@ import Model from './render/model';
 import AnimationController from './character/animation-controller';
 import Animator from './character/animator';
 import Actor from './character/actor';
+import Character from './character/character';
 import Stage from './set/stage';
 import Camera from './set/camera';
 import { mat4, vec3 } from 'gl-matrix';
 import Shader from './render/shader';
-import touch from 'touches';
 import {mobilecheck, createShadowMap, radians} from './util';
+import touch from 'touches';
+import vkey from 'vkey';
+import mouseWheel from 'mouse-wheel';
+
 
 var shell = require('gl-now')();
 var subjects = [], stage, camera;
 var shadow;
 
 var glslify = require('glslify');
-var isStereoScopic = false;
+var isStereoscopic = false, isFowardKeyDown = false, hasMoved = false;
 
 touch(document.getElementById("cardboard"))
   .on('end', (ev) => {
     if(mobilecheck()) {
       document.body.webkitRequestFullScreen();
-      isStereoScopic = !isStereoScopic; 
+      isStereoscopic = !isStereoscopic; 
    }
  });
 
@@ -70,32 +74,71 @@ shell.on('gl-init', () => {
   let subjectModel = new Model(gl, require('../models/container_guy.json'));
   let animationController = new AnimationController(subjectModel);
 
+  let script = require('../models/container_guy.script.json');
+
   for(var i = 0; i < 3; i++) {
     let animator = new Animator(animationController);
-    let subject = new Actor(subjectShader, subjectShadowShader, animator, subjectModel, [0, 0, i*20], 0.5, 2.0, 0.02);
+    let subjectActor = new Actor(subjectShader, subjectShadowShader, animator, subjectModel, [0, 0, i*20], 0.02);
+    let subject = new Character(script, subjectActor);
 
-    subject.stop.push((a) => a.loop(0));
-    subject.stopToGo.push((a) => a.play(1, 0, [10], {}, true));
-    subject.go.push((a) => a.loop(1, 10, 56, { from: 23, to: 43 }, true));
-
-    subject.goToStop.push((a) => a.play(1, 0, [23, 56], {from: 10, to: 56}, false));
-    subject.goToStop.push((a) => a.play(1, 0, [33, 65], {}, false));
     subjects.push(subject);
   }
 
-  camera = new Camera([0, 6.5, 70], [0, 0, 0]);
-  subjects[0].active = true;
+  camera = new Camera([-10, 18, 5], [0, 0, 0]);
+
+
+  if(window.DeviceMotionEvent && mobilecheck()) {
+
+    window.addEventListener('devicemotion', event => {
+      camera.yaw += event.rotationRate.alpha;
+      camera.pitch += event.rotationRate.beta;
+      subjects[0].actor.angle -= event.rotationRate.alpha;
+    });
+
+    touch()
+      .on("start", () => isFowardKeyDown = true)
+      .on("end", () => isFowardKeyDown = false);
+  } else {
+    mouseWheel((dx, dy) => {
+      camera.yaw -= dx;
+      camera.pitch += dy;
+      subjects[0].actor.angle += dx;
+    }, true);
+
+    document.body.addEventListener("keydown", (e) => {
+      if(vkey[e.keyCode] == "W") {
+        hasMoved = true;
+        isFowardKeyDown = true;
+      }
+    });
+
+    document.body.addEventListener("keyup", (e) => {
+      if(vkey[e.keyCode] == "W") isFowardKeyDown = false;
+    });
+  }
 
   console.log('init finished');
 });
 
 shell.on('gl-render', function (t) {
   var gl = shell.gl;
+  t = t/30;
 
-  subjects.forEach((s, i) => i != 0 ? s.emulateStop() : s.handleInput());
-  camera.handleInput();
+  camera.update();
+  subjects.forEach((s, i) => s.update(i == 0 ? camera : null));
 
-  vec3.add(camera.position, subjects[0].position, [-15*subjects[0].direction[0], 18, -15*subjects[0].direction[2]]);
+  if(isFowardKeyDown) {
+    subjects[0].startWalking();
+    subjects[0].walk();
+  } else {
+    if(hasMoved) subjects[0].stopWalking();
+    subjects[0].idle();
+  }
+  subjects.forEach((s, i) => {
+    if(i !== 0) {
+      s.idle();
+    }
+  });
 
   let projection = mat4.perspective(mat4.create(), radians(45.0), shell.width/shell.height, 0.1, 1000.0);
   let view = camera.getViewMatrix();
@@ -112,8 +155,8 @@ shell.on('gl-render', function (t) {
   gl.clear(gl.DEPTH_BUFFER_BIT);
 
   gl.cullFace(gl.FRONT);
+  subjects.forEach(s => s.actor.drawShadow(lightSpace));
   stage.drawShadow(lightSpace);
-  subjects.forEach(s => s.drawShadow(lightSpace));
   gl.cullFace(gl.BACK);
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -123,7 +166,7 @@ shell.on('gl-render', function (t) {
 
   let shadowUnit = shadow.map.texture.bind(shadow.map.unit);
 
-  if(isStereoScopic) {
+  if(isStereoscopic) {
     gl.scissor(0, 0, shell.width/2, shell.height);
     gl.viewport(0, 0, shell.width/2, shell.height);
     render(gl, projection, view, lightSpace, shadowUnit, t);
@@ -141,7 +184,8 @@ shell.on('gl-error', (e) => {
   worked = false;
   throw e;
 });
+
 var render = function (gl, projection, view, lightSpace, shadowUnit, t) {
-  subjects.forEach(s => s.draw(projection, view, lightSpace, camera.position, shadowUnit, stage.lights, t/30));
+  subjects.forEach(s => s.actor.draw(projection, view, lightSpace, camera.position, shadowUnit, stage.lights, t));
   stage.draw(projection, view, lightSpace, camera.position, shadowUnit);
 }

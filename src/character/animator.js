@@ -45,12 +45,12 @@ export default class Animator {
 		return this;
 	}
 
-	loop(idx, start = 0, end = -1, skip = {}, reset = true) {
+	loop(idx, start = 0, end = [-1], skip = {}, reset = true) {
 		this.callStack.push({
 			playType: PlayType.loop,
 			idx: idx,
 			startFrame: start,
-			endFrames: end == -1 ? [this.durations[idx].duration] : [end],
+			endFrames: end[0] == -1 ? [this.durations[idx].duration] : end,
 			skipFrame: skip,
 			reset: reset,
 			doWhile: () => {}

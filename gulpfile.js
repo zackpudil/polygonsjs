@@ -3,7 +3,7 @@ var browserify = require("browserify");
 var source = require('vinyl-source-stream');
 
 gulp.task("build", function () {
-	var b = browserify('./src/main.js', { debug: true })
+	var b = browserify('./src/main.js', { debug: false })
 		.transform('babelify', { presets: ['es2015']})
 		.transform('glslify');
 
