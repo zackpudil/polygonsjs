@@ -125,7 +125,10 @@ shell.on('gl-render', function (t) {
   t = t/30;
 
   camera.update();
-  subjects.forEach((s, i) => s.update(i == 0 ? camera : null));
+  subjects.forEach(s => s.update());
+  vec3.add(camera.position, 
+        subjects[0].actor.position, 
+        [-15*subjects[0].actor.direction[0], 18, -15*subjects[0].actor.direction[2]]);
 
   if(isFowardKeyDown) {
     subjects[0].startWalking();

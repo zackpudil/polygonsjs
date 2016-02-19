@@ -25,13 +25,8 @@ export default class Character {
 		return animator;
 	}
 
-	update(camera) {
+	update() {
 		this.actor.update();
-		if(camera) {
-			vec3.add(camera.position, 
-				this.actor.position, 
-				[-15*this.actor.direction[0], 18, -15*this.actor.direction[2]]);
-		}
 	}
 
 	createStunt(stunt) {
