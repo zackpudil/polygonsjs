@@ -35,7 +35,7 @@ shell.on('gl-init', () => {
 
   let model = require('../models/container_guy.json');
   let script = require('../models/container_guy.script.json');
-  for(var i = 0; i < 5; i++) 
+  for(var i = 0; i < 3; i++) 
     subjects.push(createCharacter(gl, model, script, [0, 0, i*15], 0.01));
 
   if(window.DeviceMotionEvent && mobilecheck()) {
@@ -51,6 +51,7 @@ shell.on('gl-init', () => {
         isFowardKeyDown = true;
       })
       .on("end", () => {
+        hasMoved = true;
         isFowardKeyDown = false;
         updateActive = true;
       });
