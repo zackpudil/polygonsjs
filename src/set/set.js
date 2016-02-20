@@ -35,9 +35,9 @@ export default class Setting {
 	  let lightProjection = mat4.perspective(mat4.create(), radians(90.0), 1.0, 0.1, 300.0);
 	  let lightView = mat4.lookAt(mat4.create(), lightPos, lightDir, [-1, 0, 0]);
 	  let lightSpace = mat4.mul(mat4.create(), lightProjection, lightView);
-	  let shadowUnit = this.shadowData.map.texture.bind(this.shadowData.map.unit);
 
 	  this.renderShadow(characters, lightSpace);
+	  let shadowUnit = this.shadowData.map.texture.bind(this.shadowData.map.unit);
 
 	  gl.clearColor(0.25, 0.25, 0.25, 1);
   	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
@@ -48,8 +48,10 @@ export default class Setting {
 	}
 
 	renderVR(characters, width, height, t) {
-		let projection = mat4.perspective(mat4.create(), radians(45.0), shell.width/shell.height, 0.1, 1000.0);
-	  let view = camera.getViewMatrix();
+		let gl = this.gl;
+		
+		let projection = mat4.perspective(mat4.create(), radians(45.0), width/height, 0.1, 1000.0);
+	  let view = this.camera.getViewMatrix();
 
 	  let lightPos = this.stage.lights.points[0].position;
 	  let lightDir = vec3.add([], lightPos, [0, -1, 0]);
@@ -57,20 +59,20 @@ export default class Setting {
 	  let lightProjection = mat4.perspective(mat4.create(), radians(90.0), 1.0, 0.1, 300.0);
 	  let lightView = mat4.lookAt(mat4.create(), lightPos, lightDir, [-1, 0, 0]);
 	  let lightSpace = mat4.mul(mat4.create(), lightProjection, lightView);
-	  let shadowUnit = this.shadowData.map.bind(this.shadowData.map.unit);
 
 	  this.renderShadow(characters, lightSpace);
+	  let shadowUnit = this.shadowData.map.texture.bind(this.shadowData.map.unit);
 
 	  gl.clearColor(0.25, 0.25, 0.25, 1);
   	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 
- 		gl.scissor(0, 0, shell.width/2, shell.height);
-    gl.viewport(0, 0, shell.width/2, shell.height);
+ 		gl.scissor(0, 0, width/2, height);
+    gl.viewport(0, 0, width/2, height);
 	  characters.forEach(s => s.actor.draw(projection, view, lightSpace, this.camera.position, shadowUnit, this.stage.lights, t));
   	this.stage.draw(projection, view, lightSpace, this.camera.position, shadowUnit);
 
-  	gl.scissor(shell.width/2, 0, shell.width/2, shell.height);
-    gl.viewport(shell.width/2, 0, shell.width/2, shell.height);
+  	gl.scissor(width/2, 0, width/2, height);
+    gl.viewport(width/2, 0, width/2, height);
     characters.forEach(s => s.actor.draw(projection, view, lightSpace, this.camera.position, shadowUnit, this.stage.lights, -1));
   	this.stage.draw(projection, view, lightSpace, this.camera.position, shadowUnit);
 	}

@@ -22,6 +22,7 @@
     "gl-texture2d": "^2.0.10",
     "glsl-inverse": "^1.0.0",
     "glsl-transpose": "^1.0.0",
+    "md5": "^2.0.0",
     "mouse-wheel": "^1.1.0",
     "touches": "^1.2.0",
     "vkey": "^1.0.0"

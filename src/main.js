@@ -1,23 +1,15 @@
-import Model from './render/model';
-import AnimationController from './character/animation-controller';
-import Animator from './character/animator';
-import Actor from './character/actor';
-import Character from './character/character';
-import Stage from './set/stage';
-import Setting from './set/set';
-import Camera from './set/camera';
 import { mat4, vec3 } from 'gl-matrix';
-import Shader from './render/shader';
-import {mobilecheck, createShadowMap, radians} from './util';
 import touch from 'touches';
 import vkey from 'vkey';
 import mouseWheel from 'mouse-wheel';
 
+import {mobilecheck, radians} from './util';
+import { createCharacter } from './character';
+import { createSet } from './set';
+
 var shell = require('gl-now')();
 var subjects = [], set;
-var shadow;
 
-var glslify = require('glslify');
 var isStereoscopic = false;
 var isFowardKeyDown = false, hasMoved = false, updateActive = false, activeSubject = 0;
 
@@ -38,56 +30,13 @@ shell.on('gl-init', () => {
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  shadow = createShadowMap(gl, 1024, 1024);
+  let stageModel = require('../models/small_stage.json');
+  set = createSet(gl, stageModel, [-10, 18, 5]);
 
-  let characterVertSrc = glslify('../shaders/character.glsl');
-  let charterShdwVertSrc = glslify('../shaders/shadow/actor_shadow.glsl');
-
-  let stageVertSrc = glslify('../shaders/stage.glsl');
-  let stageShdwVertSrc = glslify("../shaders/shadow/stage_shadow.glsl");
-
-  let fragSrc = glslify('../shaders/material.glsl');
-  let shadowSrc = glslify('../shaders/shadow/shadow_frag.glsl');
-
-  let stageShader = new Shader(gl)
-    .attach(stageVertSrc, 'vert')
-    .attach(fragSrc, 'frag')
-    .link();
-
-  let stageShadowShader = new Shader(gl)
-    .attach(stageShdwVertSrc, 'vert')
-    .attach(shadowSrc, 'frag')
-    .link();
-
-  let stageModel = new Model(gl, require('../models/small_stage.json'));
-  let stage = new Stage(stageModel, stageShader, stageShadowShader);
-
-  let subjectShader = new Shader(gl)
-    .attach(characterVertSrc, 'vert')
-    .attach(fragSrc, 'frag')
-    .link();
-
-  let subjectShadowShader = new Shader(gl)
-    .attach(charterShdwVertSrc, 'vert')
-    .attach(shadowSrc, 'frag')
-    .link();
-
-  let subjectModel = new Model(gl, require('../models/container_guy.json'));
-  let animationController = new AnimationController(subjectModel);
-
+  let model = require('../models/container_guy.json');
   let script = require('../models/container_guy.script.json');
-
-  for(var i = 0; i < 3; i++) {
-    let animator = new Animator(animationController);
-    let subjectActor = new Actor(subjectShader, subjectShadowShader, animator, subjectModel, [0, 0, i*20], 0.02);
-    let subject = new Character(script, subjectActor);
-
-    subjects.push(subject);
-  }
-
-  let camera = new Camera([-10, 18, 5], [0, 0, 0]);
-
-  set = new Setting(gl, stage, camera);
+  for(var i = 0; i < 5; i++) 
+    subjects.push(createCharacter(gl, model, script, [0, 0, i*15], 0.01));
 
   if(window.DeviceMotionEvent && mobilecheck()) {
 
@@ -162,10 +111,10 @@ shell.on('gl-render', function (t) {
   set.camera.update();
 
   let activeActor = subjects[activeSubject].actor;
-  let cameraPosition = vec3.add([], activeActor.position, [-15*activeActor.direction[0], 18, -15*activeActor.direction[2]]);
+  let cameraPosition = vec3.add([], activeActor.position, [-15*activeActor.direction[0], 7, -15*activeActor.direction[2]]);
   let subjectRight = vec3.cross([], activeActor.direction, [0, -1, 0]);
 
-  vec3.add(set.camera.position, cameraPosition, vec3.scale([], subjectRight, 5));
+  vec3.add(set.camera.position, cameraPosition, vec3.scale([], subjectRight, 3));
 
   if(isFowardKeyDown) {
     subjects[activeSubject].startWalking();

@@ -1,7 +1,9 @@
 import { mat4, vec4, vec3, quat } from 'gl-matrix';
 
 export default class AnimationController {
-  constructor(model) { this.model = model; }
+  constructor(model) { 
+    this.model = model; 
+  }
 
   boneTransforms(tick, idx) {
     let ident = mat4.create();
