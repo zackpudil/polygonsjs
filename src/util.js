@@ -7,7 +7,7 @@ export function radians(degrees) {
 var depthTextureExtension;
 
 export function createShadowMap(gl, width, height) {
-  depthTextureExtension = gl.getExtension("WEBKIT_WEBGL_depth_texture");
+  depthTextureExtension = gl.getExtension("WEBGL_depth_texture");
   if(!depthTextureExtension) throw new Error("Depth textures are not supported by your browser.");
 
   var depthMap = new Texture(createTexture(gl, [width, height], gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT), 'depth');
