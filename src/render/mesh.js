@@ -53,10 +53,10 @@ export class Mesh {
     let gl = this.gl;
 
     this.textures.forEach(t => {
-      shader.bind('material.' + t.name, { type: 'sampler2D', val: t.texture.bind(t.unit)});
+      shader.bind(t.name, { type: 'sampler2D', val: t.texture.bind(t.unit)});
     });
-    shader.bind('material.hasNormals', this.textures.filter(t => t.name === "normal").length);
-    shader.bind('material.hasSpecular', this.textures.filter(t => t.name === "specular").length);
+    shader.bind('hasNormals', this.textures.filter(t => t.name === "normal").length);
+    shader.bind('hasSpecular', this.textures.filter(t => t.name === "specular").length);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ebo);
