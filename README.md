@@ -20,12 +20,12 @@ npm install -g http-server
 http-server /path/to/project/root
 ```
 
-#how to play
+### how to play
 desktop - use scroll to rotate camera, use w to move guy forward.  Click mouse while looking at other guy to switch to him (he should be green).
 
 mobile - use device orientation to look around, tap screen to move guy forward.  Tap screen while looking at other guy to switch to him.
 
 vr - same as mobile.  To render for VR press google cardboard icon at top left of screen.
 
-#assets
+### assets
 all json format models are direct dumps of the [Asset Importer](https://github.com/assimp/assimp "assimp") data structure.  The stage comes from .dae files while the robots come from .fbx files.  All assets were originally created in [blender](https://www.blender.org/)
